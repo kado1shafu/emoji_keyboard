@@ -5,9 +5,10 @@ import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import com.constantine.silver.testkeyboard.Emoji
-import org.jetbrains.anko.*
 
+import com.constantine.silver.testkeyboard.Emoji
+
+import org.jetbrains.anko.*
 
 class RecyclerViewAdapter internal constructor(internal var objects: List<Emoji>) : RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>() {
     private val SIZE = 25

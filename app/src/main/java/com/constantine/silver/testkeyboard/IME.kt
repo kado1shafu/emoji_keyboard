@@ -4,48 +4,44 @@ import android.content.Context
 import android.inputmethodservice.InputMethodService
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.LinearLayoutManager.HORIZONTAL
-import android.support.v7.widget.RecyclerView
 import android.text.TextUtils
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import android.widget.GridView
-import android.widget.ImageButton
+
 import com.constantine.silver.testkeyboard.adapters.GridViewAdapter
 import com.constantine.silver.testkeyboard.adapters.RecyclerViewAdapter
-import org.jetbrains.anko.toast
 
+import kotlinx.android.synthetic.main.ime_layout.view.*
+
+import org.jetbrains.anko.toast
 
 class IME : InputMethodService() {
 
-    private var kView: View? = null
+    private lateinit var v: View
 
     override fun onCreateInputView(): View? {
-        kView = layoutInflater.inflate(R.layout.ime_layout, null)
+        v = layoutInflater.inflate(R.layout.ime_layout, null)
         val listEmoji = initiateEmoji()
         setKeyboardAdapter(listEmoji)
         setLastEmojiAdapter(listEmoji)
         setBtnListeners()
-        return kView
+        return v
     }
 
     fun setBtnListeners() {
-        val btn_h = kView?.findViewById(R.id.btn_home) as ImageButton
-        btn_h.setOnClickListener { changeLanguage() }
-        val btn_clear = kView?.findViewById(R.id.btn_clear) as ImageButton
-        btn_clear.setOnClickListener { clearText() }
+        v.btn_home.setOnClickListener { changeLanguage() }
+        v.btn_clear.setOnClickListener { clearText() }
     }
 
     fun setKeyboardAdapter(listEmoji: ArrayList<Emoji>) {
-        val emoji_keyboard = kView?.findViewById(R.id.emoji_keyboard) as GridView
-        with(emoji_keyboard) {
+        with(v.emoji_keyboard) {
             adapter = GridViewAdapter(listEmoji)
             setOnItemClickListener { parent, view, position, id -> toast("$position") }
         }
     }
 
     fun setLastEmojiAdapter(listEmoji: ArrayList<Emoji>) {
-        val last_emoji = kView?.findViewById(R.id.last_emoji) as RecyclerView
-        with(last_emoji) {
+        with(v.last_emoji) {
             adapter = RecyclerViewAdapter(listEmoji)
             layoutManager = LinearLayoutManager(context, HORIZONTAL, false)
             setHasFixedSize(true)
