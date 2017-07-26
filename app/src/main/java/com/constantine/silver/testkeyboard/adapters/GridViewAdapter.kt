@@ -7,6 +7,7 @@ import android.widget.BaseAdapter
 import android.widget.ImageView
 import com.constantine.silver.testkeyboard.Emoji
 import com.constantine.silver.testkeyboard.R
+import com.constantine.silver.testkeyboard.setMyDrawable
 import org.jetbrains.anko.*
 
 
@@ -22,13 +23,13 @@ class GridViewAdapter(var objects: ArrayList<Emoji>) : BaseAdapter(){
                     adjustViewBounds = true
                 }.lparams {
                     height = dip(64)
-                    width = height
+                    width = dip(64)
                     centerHorizontally()
                     centerVertically()
                 }
                 if(item.gif)
                     imageView{
-                        image = if (android.os.Build.VERSION.SDK_INT < 21) resources.getDrawable(R.drawable.gif_icon) else resources.getDrawable(R.drawable.gif_icon, null)
+                        image = setMyDrawable(R.drawable.gif_icon, resources)
                     }.lparams{
                         height = dip(24)
                         width = height

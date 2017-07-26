@@ -20,7 +20,7 @@ class IME : InputMethodService() {
     private var kView: View? = null
 
     override fun onCreateInputView(): View? {
-        kView = layoutInflater.inflate(R.layout.test, null)
+        kView = layoutInflater.inflate(R.layout.ime_layout, null)
         val listEmoji = initiateEmoji()
         setKeyboardAdapter(listEmoji)
         setLastEmojiAdapter(listEmoji)
@@ -37,8 +37,10 @@ class IME : InputMethodService() {
 
     fun setKeyboardAdapter(listEmoji: ArrayList<Emoji>) {
         val emoji_keyboard = kView?.findViewById(R.id.emoji_keyboard) as GridView
-        emoji_keyboard.adapter = GridViewAdapter(listEmoji)
-        emoji_keyboard.setOnItemClickListener { parent, view, position, id -> toast("$position") }
+        with(emoji_keyboard) {
+            adapter = GridViewAdapter(listEmoji)
+            setOnItemClickListener { parent, view, position, id -> toast("$position") }
+        }
     }
 
     fun setLastEmojiAdapter(listEmoji: ArrayList<Emoji>) {
@@ -57,9 +59,7 @@ class IME : InputMethodService() {
         return t
     }
 
-    fun getRandomBoolean(): Boolean {
-        return Math.random() < 0.5
-    }
+    fun getRandomBoolean(): Boolean = Math.random() < 0.5
 
     fun changeLanguage() {
         val imeManager = applicationContext.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -69,12 +69,9 @@ class IME : InputMethodService() {
     fun clearText() {
         val inputConnection = getCurrentInputConnection()
         val selectedText = inputConnection.getSelectedText(0)
-        if (TextUtils.isEmpty(selectedText)) {
-            // no selection, so delete previous character
+        if (TextUtils.isEmpty(selectedText))
             inputConnection.deleteSurroundingText(1, 0)
-        } else {
-            // delete the selection
+        else
             inputConnection.commitText("", 1)
-        }
     }
 }

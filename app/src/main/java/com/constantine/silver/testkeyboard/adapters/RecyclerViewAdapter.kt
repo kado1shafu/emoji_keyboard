@@ -10,6 +10,7 @@ import org.jetbrains.anko.*
 
 
 class RecyclerViewAdapter internal constructor(internal var objects: List<Emoji>) : RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>() {
+    private val SIZE = 25
 
     class ViewHolder internal constructor(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
 
@@ -40,12 +41,12 @@ class RecyclerViewAdapter internal constructor(internal var objects: List<Emoji>
                     scaleType = android.widget.ImageView.ScaleType.FIT_CENTER
                     adjustViewBounds = true
                 }.lparams {
-                    height = dip(40)
-                    width = height
+                    height = dip(SIZE)
+                    width = dip(SIZE)
                     centerHorizontally()
                     centerVertically()
                 }
-                layoutParams = android.view.ViewGroup.LayoutParams(dip(50), dip(40))
+                layoutParams = android.view.ViewGroup.LayoutParams(dip(40), dip(40))
             }
         }
         return ViewHolder(v)
