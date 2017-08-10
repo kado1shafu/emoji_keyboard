@@ -7,6 +7,7 @@
     android:orientation="vertical">
 
     <android.support.constraint.ConstraintLayout
+        android:id="@+id/footer"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:background="@color/colorFooter"
@@ -23,10 +24,10 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.6"
             tools:layout_constraintBottom_creator="1"
             tools:layout_constraintLeft_creator="1"
-            tools:layout_constraintTop_creator="1"
-            app:layout_constraintVertical_bias="0.6" />
+            tools:layout_constraintTop_creator="1" />
 
         <ImageButton
             android:id="@+id/btn_clear"
@@ -58,6 +59,7 @@
             tools:layout_constraintTop_creator="1" />
 
         <FrameLayout
+            android:id="@+id/emoji"
             android:layout_width="0dp"
             android:layout_height="45dp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -84,13 +86,25 @@
 
     </android.support.constraint.ConstraintLayout>
 
-    <GridView
-        android:id="@+id/emoji_keyboard"
-        android:layout_width="match_parent"
-        android:layout_height="220dp"
-        android:background="@drawable/gradient"
-        android:columnWidth="80dp"
-        android:numColumns="auto_fit"></GridView>
+    <FrameLayout
+        android:id="@+id/content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <GridView
+            android:id="@+id/category_gv"
+            android:layout_width="match_parent"
+            android:layout_height="220dp"
+            android:background="@color/colorPrimary" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/emoji_keyboard"
+            android:layout_width="match_parent"
+            android:layout_height="220dp"
+            android:background="@drawable/gradient"
+            android:columnWidth="80dp"
+            android:numColumns="auto_fit"></android.support.v7.widget.RecyclerView>
+    </FrameLayout>
 
 
 </LinearLayout>
