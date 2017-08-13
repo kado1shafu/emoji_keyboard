@@ -6,11 +6,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 
-import com.constantine.silver.testkeyboard.model.Emoji
+import com.constantine.silver.testkeyboard.model.Smile
 
 import org.jetbrains.anko.*
 
-class LastEmojiAdapter internal constructor(internal var objects: List<Emoji>) : RecyclerView.Adapter<LastEmojiAdapter.ViewHolder>() {
+class LastEmojiAdapter internal constructor(internal var objects: List<Smile>) : RecyclerView.Adapter<LastEmojiAdapter.ViewHolder>() {
     private val SIZE = 25
 
     class ViewHolder internal constructor(view: View) : RecyclerView.ViewHolder(view){
@@ -24,7 +24,6 @@ class LastEmojiAdapter internal constructor(internal var objects: List<Emoji>) :
         fun setData(drawable: Drawable, pos: Int) {
             mImage.setImageDrawable(drawable)
         }
-
     }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): ViewHolder {

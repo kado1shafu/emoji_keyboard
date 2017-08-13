@@ -12,7 +12,7 @@ import android.view.animation.TranslateAnimation
 import android.view.inputmethod.InputMethodManager
 import android.view.animation.Animation
 import android.view.MotionEvent.*
-import com.constantine.silver.testkeyboard.model.Emoji
+import com.constantine.silver.testkeyboard.model.Smile
 import com.constantine.silver.testkeyboard.R
 import com.constantine.silver.testkeyboard.getRandomBoolean
 import com.constantine.silver.testkeyboard.movingAverage
@@ -21,9 +21,13 @@ import com.constantine.silver.testkeyboard.ui.adapter.LastEmojiAdapter
 
 import kotlinx.android.synthetic.main.ime_layout.view.*
 
-import com.constantine.silver.testkeyboard.ui.adapter.KeyboardAdapter
+import com.constantine.silver.testkeyboard.ui.adapter.CertaiCategoryASmilesAdapter
 import android.widget.Toast
 import com.constantine.silver.testkeyboard.calculateNoOfColumns
+import com.constantine.silver.testkeyboard.ui.adapter.SmilesAdapter
+import org.jetbrains.anko.toast
+import android.content.SharedPreferences
+import android.graphics.Color
 
 
 class InputMethodEditor : InputMethodService(), View.OnTouchListener {
@@ -34,18 +38,21 @@ class InputMethodEditor : InputMethodService(), View.OnTouchListener {
     var initialTouchPos = 0f
     var previousValScroll = 0f
     var applicationOfAnimation = false
-    var listEmoji : ArrayList<Emoji>? = null
+    var inCategory = false
+    var currentCategory = -1
+    val CATEGORIES_ORDER = intArrayOf(0, 1, 2, 3, 4, 5, 6, 7, 10, 11, 8, 18, 12, 13, 14, 15, 16, 17, 19, 20, 21, 22, 9)
+    val MY_SETTINGS = "my_settings"
+    var sp: SharedPreferences? = null
 
     override fun onCreateInputView(): View? {
         v = layoutInflater.inflate(R.layout.ime_layout, null)
-        listEmoji = initiateEmoji()
-        listEmoji?.let {
-            setKeyboardAdapter(it)
-            setLastEmojiAdapter(it)
-        }
+        v.btn_back.visibility = View.GONE
+        initPreferences()
+        setKeyboardAdapter()
         setBtnListeners()
         return v
     }
+
 
     override fun onTouch(view: View, event: MotionEvent): Boolean {
         when (event.action) {
@@ -75,23 +82,55 @@ class InputMethodEditor : InputMethodService(), View.OnTouchListener {
         return false
     }
 
+    fun initPreferences(){
+        sp = getSharedPreferences(MY_SETTINGS, Context.MODE_PRIVATE)
+        if(sp != null) {
+            val hasVisited = sp!!.getBoolean("hasVisited", false)
+            if (!hasVisited) {
+                val myAssetManager = applicationContext.assets
+                val e = sp!!.edit()
+                for (i in CATEGORIES_ORDER)
+                    e.putInt("SIZE_F$i", myAssetManager.list("smileysCategories/f$i").size)
+                e.putBoolean("hasVisited", true)
+                e.commit()
+            }
+        }
+
+    }
+
     fun setBtnListeners() {
         v.btn_home.setOnClickListener { changeLanguage() }
         v.btn_clear.setOnClickListener { clearText() }
         v.btn_togle.setOnClickListener { switchViews() }
     }
 
-    fun setKeyboardAdapter(listEmoji: ArrayList<Emoji>) {
+    fun setKeyboardAdapter() {
+        var mAdapter = CertaiCategoryASmilesAdapter(CATEGORIES_ORDER)
+        v.btn_back.setOnClickListener {
+            v.btn_back.visibility = View.GONE
+            v.emoji_keyboard.background = resources.getDrawable(R.drawable.gradient)
+            v.emoji_keyboard.adapter = mAdapter
+            inCategory = false
+            currentCategory = -1
+        }
         with(v.emoji_keyboard) {
-            var mAdapter = KeyboardAdapter(listEmoji, resources)
             adapter = mAdapter
             layoutManager = GridLayoutManager(context, calculateNoOfColumns(this@InputMethodEditor))
             setHasFixedSize(true)
             setOnTouchListener(this@InputMethodEditor)
             addOnItemTouchListener(RecyclerTouchListener(applicationContext, this, object : RecyclerTouchListener.ClickListener {
                 override fun onClick(view: View, position: Int) {
-                    val item = listEmoji.get(position)
-                    Toast.makeText(applicationContext, "${position} is selected!", Toast.LENGTH_SHORT).show()
+                    if(!inCategory){
+                        currentCategory = CATEGORIES_ORDER[position]
+                        toast("Вы кликнули на $currentCategory категорию")
+                        inCategory = true
+                        adapter = SmilesAdapter(currentCategory, sp!!.getInt("SIZE_F$currentCategory", 0))
+                        setBackgroundColor(Color.WHITE)
+                        v.btn_back.visibility = View.VISIBLE
+                    }else{
+                        toast("Вы кликнули на f${currentCategory}s$position смайл")
+                    }
+
                 }
 
                 override fun onLongClick(view: View, position: Int) {
@@ -101,7 +140,7 @@ class InputMethodEditor : InputMethodService(), View.OnTouchListener {
         }
     }
 
-    fun setLastEmojiAdapter(listEmoji: ArrayList<Emoji>) {
+    fun setLastEmojiAdapter(listEmoji: ArrayList<Smile>) {
         with(v.last_emoji) {
             adapter = LastEmojiAdapter(listEmoji)
             layoutManager = LinearLayoutManager(context, HORIZONTAL, false)
@@ -118,6 +157,7 @@ class InputMethodEditor : InputMethodService(), View.OnTouchListener {
             }))
         }
     }
+
 
     fun switchViews(){
         var pos = if(v.emoji_keyboard.y > SIZE_OF_LC - SIZE_OF_LC * 0.1) -SIZE_OF_LC else SIZE_OF_LC
@@ -136,10 +176,10 @@ class InputMethodEditor : InputMethodService(), View.OnTouchListener {
 
     }
 
-    fun initiateEmoji(): ArrayList<Emoji> {
-        val t = ArrayList<Emoji>()
+    fun initiateEmoji(): ArrayList<Smile> {
+        val t = ArrayList<Smile>()
         for (i in 0 until 40)
-            t.add(Emoji(resources.getDrawable(R.drawable.logo_image), getRandomBoolean()))
+            t.add(Smile(resources.getDrawable(R.drawable.logo_image), getRandomBoolean()))
         return t
     }
 

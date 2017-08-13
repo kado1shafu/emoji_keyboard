@@ -1,29 +1,23 @@
 package com.constantine.silver.testkeyboard.ui.adapter
 
 import android.content.res.Resources
-import android.graphics.drawable.Drawable
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-
-import com.constantine.silver.testkeyboard.model.Emoji
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.request.RequestOptions
 import com.constantine.silver.testkeyboard.R
 
 import org.jetbrains.anko.*
 
-class KeyboardAdapter internal constructor(internal var objects: List<Emoji>, internal var resources: Resources) : RecyclerView.Adapter<KeyboardAdapter.ViewHolder>() {
+class CertaiCategoryASmilesAdapter internal constructor(internal var objects: IntArray) : RecyclerView.Adapter<CertaiCategoryASmilesAdapter.ViewHolder>() {
 
     class ViewHolder internal constructor(view: View) : RecyclerView.ViewHolder(view) {
 
-        private val mImage: ImageView = view.findViewById(1) as ImageView
-        private val icon_gif: ImageView = view.findViewById(2) as ImageView
-
-        fun setData(img: Drawable, icon : Drawable) {
-            mImage.setImageDrawable(img)
-            icon_gif.setImageDrawable(icon)
-        }
-
+        val mainImage: ImageView = view.findViewById(1) as ImageView
+        val gifPlaceholder: ImageView = view.findViewById(2) as ImageView
     }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): ViewHolder {
@@ -31,7 +25,6 @@ class KeyboardAdapter internal constructor(internal var objects: List<Emoji>, in
             relativeLayout {
                 imageView {
                     id = 1
-                    scaleType = ImageView.ScaleType.FIT_CENTER
                     adjustViewBounds = true
                 }.lparams {
                     height = dip(64)
@@ -55,7 +48,16 @@ class KeyboardAdapter internal constructor(internal var objects: List<Emoji>, in
 
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.setData(objects[position].drawable, resources.getDrawable(R.drawable.gif_icon))
+        var myOptions = RequestOptions()
+                .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
+                .fitCenter()
+        Glide.with(holder.itemView.context)
+                .load("file:///android_asset/categoryIcons/a${objects[position]}.png")
+                .apply(myOptions)
+                .into(holder.mainImage)
+        when(objects[position]) {
+            10, 11 -> Glide.with(holder.itemView.context).load(R.drawable.gif_icon).into(holder.gifPlaceholder)
+        }
     }
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView?) {
@@ -63,4 +65,5 @@ class KeyboardAdapter internal constructor(internal var objects: List<Emoji>, in
     }
 
     override fun getItemCount(): Int = objects.size
+    
 }

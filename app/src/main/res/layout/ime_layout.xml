@@ -104,6 +104,19 @@
             android:background="@drawable/gradient"
             android:columnWidth="80dp"
             android:numColumns="auto_fit"></android.support.v7.widget.RecyclerView>
+
+        <TextView
+            android:id="@+id/btn_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif"
+            android:padding="10dp"
+            android:text="Back"
+            android:textColor="@android:color/holo_orange_dark"
+            android:textSize="24sp"
+            android:textStyle="bold|italic"
+            android:visibility="visible" />
+
     </FrameLayout>
 
 
