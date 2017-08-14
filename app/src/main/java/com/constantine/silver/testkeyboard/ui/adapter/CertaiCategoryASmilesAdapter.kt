@@ -21,7 +21,7 @@ class CertaiCategoryASmilesAdapter internal constructor(internal var objects: In
     }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): ViewHolder {
-        val v = with(viewGroup.context) {
+        val v = viewGroup.context.
             relativeLayout {
                 imageView {
                     id = 1
@@ -42,7 +42,6 @@ class CertaiCategoryASmilesAdapter internal constructor(internal var objects: In
                 }
                 layoutParams = ViewGroup.LayoutParams(dip(80), dip(80))
             }
-        }
         return ViewHolder(v)
     }
 
