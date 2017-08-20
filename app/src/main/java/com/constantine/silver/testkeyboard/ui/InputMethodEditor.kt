@@ -12,9 +12,7 @@ import android.view.animation.TranslateAnimation
 import android.view.inputmethod.InputMethodManager
 import android.view.animation.Animation
 import android.view.MotionEvent.*
-import com.constantine.silver.testkeyboard.model.Smile
 import com.constantine.silver.testkeyboard.R
-import com.constantine.silver.testkeyboard.getRandomBoolean
 import com.constantine.silver.testkeyboard.movingAverage
 
 import com.constantine.silver.testkeyboard.ui.adapter.LastEmojiAdapter
@@ -22,14 +20,13 @@ import com.constantine.silver.testkeyboard.ui.adapter.LastEmojiAdapter
 import kotlinx.android.synthetic.main.ime_layout.view.*
 
 import com.constantine.silver.testkeyboard.ui.adapter.CertaiCategoryASmilesAdapter
-import android.widget.Toast
 import com.constantine.silver.testkeyboard.calculateNoOfColumns
 import com.constantine.silver.testkeyboard.ui.adapter.SmilesAdapter
 import org.jetbrains.anko.toast
 import android.content.SharedPreferences
 import android.graphics.Color
 import com.constantine.silver.testkeyboard.ui.helper.LastEmojiHelper
-import org.jetbrains.anko.collections.forEachWithIndex
+import com.constantine.silver.testkeyboard.ui.helper.SettingsHelper
 
 
 class InputMethodEditor : InputMethodService(), View.OnTouchListener {
@@ -39,21 +36,26 @@ class InputMethodEditor : InputMethodService(), View.OnTouchListener {
     val SIZE_OF_LC = Constant.SIZE_OF_LC
     var initialTouchPos = 0f
     var previousValScroll = 0f
-    var applicationOfAnimation = false
+    var flagOfAnimation = false
     var inCategory = false
     var currentCategory = -1
     val CATEGORIES_ORDER = Constant.CATEGORIES_ORDER
-    val SETTINGS = Constant.MY_SETTINGS
     lateinit var sp: SharedPreferences
     lateinit var lastEmoji: ArrayList<String>
     lateinit var leHelper: LastEmojiHelper
+    lateinit var settingsHelper: SettingsHelper
 
     override fun onCreateInputView(): View? {
         v = layoutInflater.inflate(R.layout.ime_layout, null)
         v.btn_back.visibility = View.GONE
-        leHelper = LastEmojiHelper(applicationContext)
+        sp = getSharedPreferences(Constant.MY_SETTINGS, Context.MODE_PRIVATE)
+
+        leHelper = LastEmojiHelper(sp)
+        settingsHelper = SettingsHelper(sp, assets)
+
+        settingsHelper.init()
         lastEmoji = leHelper.init()
-        initPreferences()
+
         setKeyboardAdapter()
         setLastEmojiAdapter()
         setBtnListeners()
@@ -67,47 +69,36 @@ class InputMethodEditor : InputMethodService(), View.OnTouchListener {
             }
             ACTION_MOVE -> {
                 //Scroll going up and this is the initial position and the position emoji_keyboard.y not exceed half the size of layout category
-                if(previousValScroll > 0 && v.emoji_keyboard.computeVerticalScrollOffset() == 0 && v.emoji_keyboard.y  < SIZE_OF_LC / 2 + SIZE_OF_LC * 0.1 ){
+                if(previousValScroll > 0 && v.emoji_keyboard.computeVerticalScrollOffset() == 0 && v.emoji_keyboard.y  < SIZE_OF_LC * 0.6 ){
                     v.emoji_keyboard.y = previousValScroll
-                    applicationOfAnimation = true
+                    lazy { flagOfAnimation = true }
                 }
                 previousValScroll = movingAverage(event.y - initialTouchPos, previousValScroll, 0.12f)
             }
             ACTION_UP, ACTION_CANCEL -> {
-                if(applicationOfAnimation)
-                    if(event.y - initialTouchPos > SIZE_OF_LC / 2)
+                if(flagOfAnimation)
+                    if(event.y - initialTouchPos > SIZE_OF_LC * 0.3)
                     //animation drop
                         animation(SIZE_OF_LC)
                     else
                     //animation rise
                         animation(0f)
-                applicationOfAnimation = false
+                flagOfAnimation = false
                 previousValScroll = 0f
             }
         }
         return false
     }
 
-    fun initPreferences(){
-        sp = getSharedPreferences(SETTINGS, Context.MODE_PRIVATE)
-        val hasVisited = sp.getBoolean("hasVisited", false)
-        if (!hasVisited) {
-            val myAssetManager = applicationContext.assets
-            val e = sp.edit()
-            for (i in CATEGORIES_ORDER)
-                e.putInt("SIZE_F$i", myAssetManager.list("smileysCategories/f$i").size)
-            e.putBoolean("hasVisited", true)
-            e.commit()
-        }
-    }
 
-    fun setBtnListeners() {
+
+    private fun setBtnListeners() {
         v.btn_home.setOnClickListener { changeLanguage() }
         v.btn_clear.setOnClickListener { clearText() }
         v.btn_togle.setOnClickListener { switchViews() }
     }
 
-    fun setKeyboardAdapter() {
+    private fun setKeyboardAdapter() {
         var mAdapter = CertaiCategoryASmilesAdapter(CATEGORIES_ORDER)
         v.btn_back.setOnClickListener {
             v.btn_back.visibility = View.GONE
@@ -115,6 +106,7 @@ class InputMethodEditor : InputMethodService(), View.OnTouchListener {
             v.emoji_keyboard.adapter = mAdapter
             inCategory = false
             currentCategory = -1
+            //TODO  delete this str
             leHelper.save(lastEmoji)
         }
         with(v.emoji_keyboard) {
@@ -142,12 +134,12 @@ class InputMethodEditor : InputMethodService(), View.OnTouchListener {
         }
     }
 
-    fun setLastEmojiAdapter(){
+    private fun setLastEmojiAdapter(){
         with(v.last_emoji) {
             adapter = LastEmojiAdapter(lastEmoji)
             layoutManager = LinearLayoutManager(context, HORIZONTAL, false)
             setHasFixedSize(true)
-            addOnItemTouchListener(RecyclerTouchListener(applicationContext, this, object : RecyclerTouchListener.ClickListener {
+            addOnItemTouchListener(RecyclerTouchListener(context, this, object : RecyclerTouchListener.ClickListener {
                 override fun onClick(view: View, position: Int) {
                     currentInputConnection.commitText(lastEmoji[position], 1)
                 }
@@ -159,7 +151,7 @@ class InputMethodEditor : InputMethodService(), View.OnTouchListener {
         }
     }
 
-    fun switchViews(){
+    private fun switchViews(){
         var pos = if(v.emoji_keyboard.y > SIZE_OF_LC - SIZE_OF_LC * 0.1) -SIZE_OF_LC else SIZE_OF_LC
         val anim = TranslateAnimation(0f,0f,0f,pos)
         anim.duration = 350
@@ -176,7 +168,7 @@ class InputMethodEditor : InputMethodService(), View.OnTouchListener {
 
     }
 
-    fun animation(shift: Float){
+    private fun animation(shift: Float){
         val anim = TranslateAnimation(0f,0f,0f,shift - v.emoji_keyboard.y)
         anim.duration = 300
         anim.setAnimationListener(object : Animation.AnimationListener {
@@ -190,12 +182,12 @@ class InputMethodEditor : InputMethodService(), View.OnTouchListener {
         v.emoji_keyboard.startAnimation(anim)
     }
 
-    fun changeLanguage() {
+    private fun changeLanguage() {
         val imeManager = applicationContext.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imeManager.showInputMethodPicker()
     }
 
-    fun clearText() {
+    private fun clearText() {
         //TODO Delete this str
         leHelper.clear()
         val inputConnection = getCurrentInputConnection()

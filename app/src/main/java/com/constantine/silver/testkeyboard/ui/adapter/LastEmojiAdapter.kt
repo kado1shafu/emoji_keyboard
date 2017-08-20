@@ -16,7 +16,7 @@ import org.jetbrains.anko.*
 import java.awt.font.TextAttribute
 
 class LastEmojiAdapter internal constructor(internal var emoji: ArrayList<String>) : RecyclerView.Adapter<LastEmojiAdapter.ViewHolder>() {
-    private val SIZE = 25
+    private val SIZE = 40
 
     class ViewHolder internal constructor(view: View) : RecyclerView.ViewHolder(view){
 
@@ -30,15 +30,13 @@ class LastEmojiAdapter internal constructor(internal var emoji: ArrayList<String
                 textView {
                     id = 666
                 }.lparams {
-                    height = dip(SIZE)
-                    width = dip(SIZE)
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
                         textAlignment = View.TEXT_ALIGNMENT_CENTER
                     }
                     centerHorizontally()
                     centerVertically()
                 }
-                layoutParams = android.view.ViewGroup.LayoutParams(dip(40), dip(40))
+                layoutParams = android.view.ViewGroup.LayoutParams(dip(SIZE), dip(SIZE))
             }
         return ViewHolder(v)
     }

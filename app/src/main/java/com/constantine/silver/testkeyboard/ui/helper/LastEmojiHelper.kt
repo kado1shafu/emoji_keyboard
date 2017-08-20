@@ -1,12 +1,9 @@
 package com.constantine.silver.testkeyboard.ui.helper
 
-import android.content.Context
 import android.content.SharedPreferences
-import com.constantine.silver.testkeyboard.ui.Constant
 
 
-class LastEmojiHelper(internal val context: Context){
-    var sp: SharedPreferences = context.getSharedPreferences(Constant.MY_SETTINGS, Context.MODE_PRIVATE)
+class LastEmojiHelper(val sp: SharedPreferences){
 
     fun init(): ArrayList<String> {
         val str = sp.getString("LAST_EMOJI","")
@@ -18,14 +15,16 @@ class LastEmojiHelper(internal val context: Context){
     }
 
     fun save(lastEmoji: ArrayList<String>){
-        val e = sp.edit()
         var str = ""
         var set = LinkedHashSet<String>(lastEmoji)
         set.forEach { str += "$it "}
-        str = str.substring(0, str.length - 1)
-        println("MY save " + str)
-        e.putString("LAST_EMOJI", str)
-        e.commit()
+        if(str.length != 0){
+            val e = sp.edit()
+            str = str.substring(0, str.length - 1)
+            println("MY save " + str)
+            e.putString("LAST_EMOJI", str)
+            e.commit()
+        }
     }
 
     fun clear(){
