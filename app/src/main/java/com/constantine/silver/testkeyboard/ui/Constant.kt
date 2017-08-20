@@ -27,6 +27,7 @@ object Constant{
     "SYMBOLS",
     "FLAGS"
     )
+
     const val MY_SETTINGS = "my_settings"
     const val SIZE_OF_LC = 400f
 }

@@ -25,8 +25,13 @@ import com.constantine.silver.testkeyboard.ui.adapter.SmilesAdapter
 import org.jetbrains.anko.toast
 import android.content.SharedPreferences
 import android.graphics.Color
+import android.view.KeyEvent
 import com.constantine.silver.testkeyboard.ui.helper.LastEmojiHelper
 import com.constantine.silver.testkeyboard.ui.helper.SettingsHelper
+import java.nio.charset.StandardCharsets
+import android.view.KeyEvent.KEYCODE_DEL
+
+
 
 
 class InputMethodEditor : InputMethodService(), View.OnTouchListener {
@@ -94,7 +99,7 @@ class InputMethodEditor : InputMethodService(), View.OnTouchListener {
 
     private fun setBtnListeners() {
         v.btn_home.setOnClickListener { changeLanguage() }
-        v.btn_clear.setOnClickListener { clearText() }
+        v.btn_clear.setOnClickListener { currentInputConnection.sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL))}
         v.btn_togle.setOnClickListener { switchViews() }
     }
 
@@ -187,14 +192,4 @@ class InputMethodEditor : InputMethodService(), View.OnTouchListener {
         imeManager.showInputMethodPicker()
     }
 
-    private fun clearText() {
-        //TODO Delete this str
-        leHelper.clear()
-        val inputConnection = getCurrentInputConnection()
-        val selectedText = inputConnection.getSelectedText(0)
-        if (TextUtils.isEmpty(selectedText))
-            inputConnection.deleteSurroundingText(1, 0)
-        else
-            inputConnection.commitText("", 1)
-    }
 }
